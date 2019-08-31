@@ -15,7 +15,7 @@ namespace SocialAnalyser.Entities
 
     [Required]
     [Column("user_id")]
-    public int UserId { get; set; }
+    public string UserId { get; set; }
 
     [InverseProperty("FriendUser")]
     public virtual ICollection<UserFriend> UserFriends { get; set; }

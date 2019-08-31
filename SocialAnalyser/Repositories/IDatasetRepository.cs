@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using SocialAnalyser.Entities;
 
 namespace SocialAnalyser.Repositories
 {
-  public interface IDatasetRepository
+  public interface IDatasetRepository: IGenericRepository<Dataset>
   {
-    Task<Unit> InsertDatasetAsync(string dataset, CancellationToken cancellationToken);
+    Task<int> InsertDatasetAsync(string name, CancellationToken cancellationToken);
   }
 }

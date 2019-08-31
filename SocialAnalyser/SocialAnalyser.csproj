@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Api\Models\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
 
 </Project>

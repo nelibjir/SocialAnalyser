@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SocialAnalyser.Repositories;
 
 namespace SocialAnalyser.IoC
 {
@@ -6,7 +7,9 @@ namespace SocialAnalyser.IoC
   {
     public static void AddRepositories(this IServiceCollection services)
     {
-      services.AddTransient<ICompanyRepository, CompanyRepository>();
+      services.AddTransient<IDatasetRepository, DatasetRepository>();
+      services.AddTransient<IUserFriendRepository, UserFriendRepository>();
+      services.AddTransient<IUserRepository, UserRepository>();
     }
   }
 }

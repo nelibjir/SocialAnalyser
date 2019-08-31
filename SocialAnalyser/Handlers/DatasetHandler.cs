@@ -9,10 +9,10 @@ namespace SocialAnalyser.Handlers
   public class DatasetHandler
     : IRequestHandler<CreateDataSetCommand>
   {
-    private readonly IDatasetServicecs fDatasetServicecs;
+    private readonly IDatasetService fDatasetServicecs;
 
     public DatasetHandler(
-      IDatasetServicecs datasetServicecs
+      IDatasetService datasetServicecs
       )
     {
       fDatasetServicecs = datasetServicecs;
@@ -20,7 +20,8 @@ namespace SocialAnalyser.Handlers
 
     public async Task<Unit> Handle(CreateDataSetCommand request, CancellationToken cancellationToken)
     {
-
+      await fDatasetServicecs.CreateDatasetAsync(request.Dataset, request.Name, cancellationToken);
+      return Unit.Value;
     }
   }
 }

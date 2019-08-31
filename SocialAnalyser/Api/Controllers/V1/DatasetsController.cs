@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SocialAnalyser.Api.Models;
 using SocialAnalyser.Commands;
 
 namespace SocialAnalyser.Api.Controllers.V1
@@ -32,11 +33,16 @@ namespace SocialAnalyser.Api.Controllers.V1
       return "value";
     }
 
-    // POST api/<controller>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult> PostNewDataset([FromBody]string body, CancellationToken cancellationToken)
+    public async Task<ActionResult> PostNewDataset([FromBody]NewDataset body, CancellationToken cancellationToken)
     {
-      await fMediator.Send(new CreateDataSetCommand { Dataset = body }, cancellationToken);
+      await fMediator.Send(new CreateDataSetCommand { Dataset = body.Dataset, Name = body.Name }, cancellationToken);
       return CreatedAtRoute(nameof(GetDataset), null);
     }
 

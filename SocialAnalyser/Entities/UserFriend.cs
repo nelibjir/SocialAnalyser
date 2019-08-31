@@ -11,11 +11,11 @@ namespace SocialAnalyser.Entities
 
     [Required]
     [Column("user_id")]
-    public int UserId { get; set; }
+    public string UserId { get; set; }
 
     [Required]
     [Column("friend_user_id")]
-    public int FriendUserId { get; set; }
+    public string FriendUserId { get; set; }
 
     [Required]
     [Column("dataset_id")]

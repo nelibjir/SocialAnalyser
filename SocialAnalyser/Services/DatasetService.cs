@@ -1,23 +1,45 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using SocialAnalyser.Dtos;
+using SocialAnalyser.Repositories;
 
 namespace SocialAnalyser.Services
 {
-  public class DatasetService: IDatasetServicecs
+  public class DatasetService: IDatasetService
   {
+    private readonly IDatasetRepository fDatasetRepository;
+    private readonly IUserFriendRepository fUserFriendRepository;
+    private readonly IUserRepository fUserRepository;
+
+
     public DatasetService(
-      IDatasetRepository companyRepository
+      IDatasetRepository datasetRepository,
+      IUserFriendRepository userFriendRepository,
+      IUserRepository userRepository
       )
     {
-      fCompanyRepository = companyRepository;
-      fCompanyNoteRepository = companyNoteRepository;
-      fRegionRepository = regionRepository;
+      fDatasetRepository = datasetRepository;
+      fUserFriendRepository = userFriendRepository;
+      fUserRepository = userRepository;
     }
 
-    public Task<Unit> CreateDatasetAsync(string dataset, CancellationToken cancellationToken)
+    public async Task CreateDatasetAsync(string dataset, string name, CancellationToken cancellationToken)
     {
+      UserFriendDto[] relationships = ParseDataset(dataset).ToArray();
+      int datasetId = await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
+      await fUserRepository.InsertUsersAsync(relationships, cancellationToken);
+      await fUserFriendRepository.InsertAsync(relationships, datasetId, cancellationToken);
+    }
 
+    private IEnumerable<UserFriendDto> ParseDataset(string dataset)
+    {
+      return dataset
+        .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+        .Select(rel => rel.Split(null))
+        .Select(tuple => new UserFriendDto { UserId = tuple[0], FriendId = tuple[1] });
     }
   }
 }

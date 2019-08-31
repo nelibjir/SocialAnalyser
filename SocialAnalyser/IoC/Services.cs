@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SocialAnalyser.Services;
 
 namespace SocialAnalyser.IoC
 {
@@ -6,7 +7,7 @@ namespace SocialAnalyser.IoC
   {
     public static void AddServices(this IServiceCollection services)
     {
-      services.AddTransient<ICompanyService, CompanyService>();
+      services.AddTransient<IDatasetService, DatasetService>();
     }
   }
 }
