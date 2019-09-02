@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialAnalyser.Entities
 {
+  [Table("datasets")]
   public partial class Dataset: IBaseEntity
   {
     [Column("id")]
@@ -14,6 +15,6 @@ namespace SocialAnalyser.Entities
     public string Name { get; set; }
 
     [InverseProperty("Dataset")]
-    public virtual ICollection<Dataset> Datasets { get; set; }
+    public virtual ICollection<UserFriend> UserFriends { get; set; }
   }
 }

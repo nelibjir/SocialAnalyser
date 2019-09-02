@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 
 namespace SocialAnalyser
 {
@@ -10,14 +9,13 @@ namespace SocialAnalyser
     public static string DefaultDbConnectionString { get; set; }
 
     public const string _DbConnectionString = "SHIPVIO_DB_CONNECTION_STRING";
-    //public const string _DbConnectionString = "LOGGER_CONNECTION_STRING";
 
-    public static readonly string DbConnectionString;
-
-    static MyEnvironment()
-    {
-      DbConnectionString = Environment.GetEnvironmentVariable(_DbConnectionString, _Machine)
+    public static string DbConnectionString {
+      get {
+        return Environment.GetEnvironmentVariable(_DbConnectionString, _Machine)
         ?? DefaultDbConnectionString;
+      }
     }
+
   }
 }

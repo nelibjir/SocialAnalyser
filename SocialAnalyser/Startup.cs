@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Data.SqlClient;
+using System.Reflection;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,17 +20,16 @@ namespace SocialAnalyser
   public class Startup
   {
 
-    public IConfigurationRoot Configuration { get; set; }
+   // public IConfigurationRoot Configuration { get; set; }
+    public IConfiguration Configuration { get; }
 
-    public Startup(IHostingEnvironment env)
+    private static readonly log4net.ILog fLog = log4net.LogManager.GetLogger(typeof(Startup));
+
+    public Startup(ILogger<Startup> logger, IConfiguration configuration)
     {
-      //register by env as appsettings.{Environment}.json
-      IConfigurationBuilder builder = new ConfigurationBuilder()
-          .SetBasePath(env.ContentRootPath)
-          .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-      Configuration = builder.Build();
+      Configuration = configuration;
     }
+
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -37,10 +37,12 @@ namespace SocialAnalyser
         .AddMvc()
         .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+      var tmp = Configuration
+        .GetSection("DbConnectionConfiguration:ConnectionString");
       //add to function preparing env, make factory here
       MyEnvironment.DefaultDbConnectionString = Configuration
-        .GetSection("DbConnectionConfiguration")
-        .Value;
+       .GetSection("DbConnectionConfiguration:ConnectionString")
+       .Value;
 
       services.AddDbContext<DataContext>(SetupDbContext);
       //services.AddSwaggerGen(SwaggerConfig.SetupSwaggerGen);
@@ -58,7 +60,7 @@ namespace SocialAnalyser
       services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
     }
 
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
     {
       if (env.IsDevelopment())
       {
@@ -69,9 +71,16 @@ namespace SocialAnalyser
         app.UseHsts();
       }
 
+      using (IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+      {
+        DataContext context = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+        context.Database.Migrate();
+      }
+
+
+      loggerFactory.AddLog4Net();
       app.UseHttpsRedirection();
       app.UseMvc();
-
       app.Run(async (context) =>
       {
         await context.Response.WriteAsync("Hello World!");
@@ -87,7 +96,7 @@ namespace SocialAnalyser
     }
 
     private void SetupDbContext(DbContextOptionsBuilder optionsBuilder)
-    {
+    { 
       //OBSOLOTE
       LoggerFactory f = new LoggerFactory(new[] { new ConsoleLoggerProvider((m, l) => l == LogLevel.Information, true) });
       // TODO zmazat po pridani ILoggerFactory do ServiceCollection

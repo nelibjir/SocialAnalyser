@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace SocialAnalyser.Entities
+﻿namespace SocialAnalyser.Entities
 {
   public interface IBaseEntity
   {

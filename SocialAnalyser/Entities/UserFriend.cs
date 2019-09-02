@@ -21,16 +21,16 @@ namespace SocialAnalyser.Entities
     [Column("dataset_id")]
     public int DatasetId { get; set; }
 
-    [ForeignKey("UserId")]
-    [InverseProperty("Users")]
-    public User User { get; set; }
-
     [ForeignKey("FriendUserId")]
     [InverseProperty("UserFriends")]
-    public User FriendUser { get; set; }
+    public virtual User FriendUser { get; set; }
+
+    [ForeignKey("UserId")]
+    [InverseProperty("Users")]
+    public virtual User User { get; set; }
 
     [ForeignKey("DatasetId")]
-    [InverseProperty("Datasets")]
+    [InverseProperty("UserFriends")]
     public Dataset Dataset { get; set; }
   }
 }
