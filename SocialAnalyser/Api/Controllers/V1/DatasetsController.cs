@@ -1,18 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using SocialAnalyser.Api.Models;
 using SocialAnalyser.Commands;
 
 namespace SocialAnalyser.Api.Controllers.V1
 {
-  [Route("api/v1/[controller]")]
+  [Route("api/v1/datasets")]
   public class DatasetsController: Controller
   {
 
     private readonly IMediator fMediator;
+    private static readonly log4net.ILog fLog = log4net.LogManager.GetLogger(typeof(DatasetsController));
 
     public DatasetsController(IMediator mediator)
     {
@@ -27,8 +33,8 @@ namespace SocialAnalyser.Api.Controllers.V1
     }
 
     // GET api/<controller>/5
-    [HttpGet("{id}", Name = nameof(GetDataset))]
-    public string GetDataset(int id)
+    [HttpGet("{name}", Name = nameof(GetDataset))]
+    public string GetDataset(string name)
     {
       return "value";
     }
@@ -36,14 +42,15 @@ namespace SocialAnalyser.Api.Controllers.V1
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="body"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost]
-    public async Task<ActionResult> PostNewDataset([FromBody]NewDataset body, CancellationToken cancellationToken)
+    [HttpPost]                        //[FromBody]NewDataset body, 
+    public async Task<ActionResult> PostNewDataset(CancellationToken cancellationToken)
     {
-      await fMediator.Send(new CreateDataSetCommand { Dataset = body.Dataset, Name = body.Name }, cancellationToken);
-      return CreatedAtRoute(nameof(GetDataset), null);
+      Request.Form.TryGetValue("Name", out StringValues tmp);
+
+      await fMediator.Send(new CreateDataSetCommand { File = Request.Form.Files[0], Name = tmp }, cancellationToken);
+      return CreatedAtRoute(nameof(GetDataset), tmp);
     }
 
     // PUT api/<controller>/5

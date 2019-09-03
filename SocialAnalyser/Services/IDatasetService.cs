@@ -1,10 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace SocialAnalyser.Services
 {
   public interface IDatasetService
   {
-    Task CreateDatasetAsync(string dataset, string name, CancellationToken cancellationToken);
+    Task CreateDatasetAsync(IFormFile file, string name, CancellationToken cancellationToken);
   }
 }

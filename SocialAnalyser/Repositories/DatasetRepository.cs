@@ -11,7 +11,10 @@ namespace SocialAnalyser.Repositories
 
     public async Task<int> InsertDatasetAsync(string name, CancellationToken cancellationToken)
     {
-     return (await DbSet.AddAsync(new Dataset() { Name = name }, cancellationToken)).Entity.Id;
+      Dataset dataset = new Dataset() { Name = name };
+      await DbSet.AddAsync(dataset, cancellationToken);
+      await SaveAllAsync(cancellationToken);
+      return dataset.Id;
     }
   }
 }

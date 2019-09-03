@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using SocialAnalyser.Comparators;
 using SocialAnalyser.Dtos;
 using SocialAnalyser.Repositories;
+using SocialAnalyser.Utils;
 
 namespace SocialAnalyser.Services
 {
@@ -26,12 +29,25 @@ namespace SocialAnalyser.Services
       fUserRepository = userRepository;
     }
 
-    public async Task CreateDatasetAsync(string dataset, string name, CancellationToken cancellationToken)
+    public async Task CreateDatasetAsync(IFormFile file, string name, CancellationToken cancellationToken)
     {
-      UserFriendDto[] relationships = ParseDataset(dataset).ToArray();
+
+      UserFriendDto[] relationships = ParseDataset(await FormFileExtensionUtil.ReadAsListAsync(file))
+        .ToArray();
+
+      HashSet<string> userIds = new HashSet<string>();
+      foreach(UserFriendDto userFriendDto in relationships)
+      {
+        userIds.Add(userFriendDto.UserId);
+        userIds.Add(userFriendDto.FriendId);
+      }
+
       int datasetId = await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
-      await fUserRepository.InsertUsersAsync(relationships, cancellationToken);
+      await fUserRepository.InsertUsersAsync(userIds, cancellationToken);
+      await fUserFriendRepository.SaveAllAsync(cancellationToken);
+
       await fUserFriendRepository.InsertAsync(relationships, datasetId, cancellationToken);
+      await fUserFriendRepository.SaveAllAsync(cancellationToken);
     }
 
     private IEnumerable<UserFriendDto> ParseDataset(string dataset)

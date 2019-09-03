@@ -20,7 +20,7 @@ namespace SocialAnalyser.Handlers
 
     public async Task<Unit> Handle(CreateDataSetCommand request, CancellationToken cancellationToken)
     {
-      await fDatasetServicecs.CreateDatasetAsync(request.Dataset, request.Name, cancellationToken);
+      await fDatasetServicecs.CreateDatasetAsync(request.File, request.Name, cancellationToken);
       return Unit.Value;
     }
   }

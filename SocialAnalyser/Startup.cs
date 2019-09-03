@@ -19,8 +19,6 @@ namespace SocialAnalyser
 {
   public class Startup
   {
-
-   // public IConfigurationRoot Configuration { get; set; }
     public IConfiguration Configuration { get; }
 
     private static readonly log4net.ILog fLog = log4net.LogManager.GetLogger(typeof(Startup));
@@ -37,8 +35,10 @@ namespace SocialAnalyser
         .AddMvc()
         .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-      var tmp = Configuration
+      IConfigurationSection tmp = Configuration
         .GetSection("DbConnectionConfiguration:ConnectionString");
+
+      services.AddCors();
       //add to function preparing env, make factory here
       MyEnvironment.DefaultDbConnectionString = Configuration
        .GetSection("DbConnectionConfiguration:ConnectionString")
@@ -62,6 +62,8 @@ namespace SocialAnalyser
 
     public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
     {
+      app.UseCors(CorsConfig.SetupCors);
+
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
@@ -77,22 +79,19 @@ namespace SocialAnalyser
         context.Database.Migrate();
       }
 
-
       loggerFactory.AddLog4Net();
       app.UseHttpsRedirection();
       app.UseMvc();
-      app.Run(async (context) =>
-      {
-        await context.Response.WriteAsync("Hello World!");
-      });
-
-      app.UseCors(CorsConfig.SetupCors);
 
       app.UseMiddleware<ExceptionMiddleware>();
       app.UseMiddleware<DbTransactionMiddleware>();
 
       //app.UseSwagger(SwaggerConfig.SetupSwagger);
       //app.UseSwaggerUI(SwaggerConfig.SetupSwaggerUI);
+      /**app.Run(async (context) =>
+      {
+        await context.Response.WriteAsync("Hello World!");
+      });         */
     }
 
     private void SetupDbContext(DbContextOptionsBuilder optionsBuilder)

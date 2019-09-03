@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SocialAnalyser.Dtos;
 using SocialAnalyser.Entities;
@@ -10,11 +11,11 @@ namespace SocialAnalyser.Repositories
     public UserRepository(DataContext dataContext)
       : base(dataContext) { }
 
-    public async Task InsertUsersAsync(UserFriendDto[] userFriendDtos, CancellationToken cancellationToken)
+    public async Task InsertUsersAsync(HashSet<string> userIds, CancellationToken cancellationToken)
     {
-      foreach (UserFriendDto userFriend in userFriendDtos)
+      foreach (string userId in userIds)
       {
-        await DbSet.AddAsync(new User { UserId = userFriend.UserId });
+        await DbSet.AddAsync(new User { UserId = userId });
       }
     }
   }

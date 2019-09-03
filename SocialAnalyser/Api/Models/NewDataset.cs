@@ -1,20 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.IO;
 
 namespace SocialAnalyser.Api.Models
 {
   public class NewDataset
   {
     /// <summary>
-    /// Set of data about friendship 
-    /// </summary>
-    [Required]
-    [StringLength(int.MaxValue, MinimumLength = 1)]
-    public string Dataset { get; set; }
-
-    /// <summary>
     /// Name of the dataset
     /// </summary>
     [Required]
+    [Range(1, 450)]
     public string Name { get; set; }
   }
 }
