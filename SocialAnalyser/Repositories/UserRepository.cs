@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SocialAnalyser.Dtos;
 using SocialAnalyser.Entities;
 
@@ -20,19 +21,20 @@ namespace SocialAnalyser.Repositories
       }
     }
 
-    public async Task<int> FindUsersByDatasetName(string datasetName, CancellationToken cancellationToken)
+    public async Task<int> FindCountByDatasetNameAsync(string datasetName, CancellationToken cancellationToken)
     {
-      /**return DbSet
-       .Join(DbContext.UserFriend,
+      return await DbSet
+       .Join(DbContext.UserDataset,
           user => user.UserId,
-          userFriend => userFriend.UserId,
-          (user, userFriend) => new { user, userFriend })
+          userDataset => userDataset.UserId,
+          (user, userDataset) => new { user, userDataset })
        .Join(DbContext.Dataset,
-         join => join.userFriend.DatasetId,
+         userUserDataset => userUserDataset.userDataset.DatasetId,
          dataset => dataset.Id,
-         (join, dataset) => 
-       )     **/
-      return 0;
+         (userUserDataset, dataset) => new { userUserDataset, dataset }
+       )
+       .Where(res => res.dataset.Name == datasetName)
+       .CountAsync();
     }
   }
 }

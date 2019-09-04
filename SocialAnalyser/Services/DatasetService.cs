@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using SocialAnalyser.Api.Models;
 using SocialAnalyser.Dtos;
+using SocialAnalyser.Entities;
 using SocialAnalyser.Repositories;
 using SocialAnalyser.Utils;
 
@@ -38,10 +39,19 @@ namespace SocialAnalyser.Services
         .ToArray();
 
       HashSet<string> userIds = getAllUsers(relationships);
-
+      // should whtorw exception when there is already same name
       int datasetId = await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
 
-      await fUserRepository.InsertUsersAsync(userIds, cancellationToken);
+      //users already in user table
+      string[] userIdsInDb = (await fUserRepository.FindManyAsync(users => userIds.Contains(users.UserId), cancellationToken))
+        .Select(u => u.UserId)
+        .ToArray();
+
+      HashSet<string> newUserIds = userIds
+        .Where(u => !userIdsInDb.Contains(u))
+        .ToHashSet();
+
+      await fUserRepository.InsertUsersAsync(newUserIds, cancellationToken);
       await fUserRepository.SaveAllAsync(cancellationToken);
 
       await fUserDatasetRepository.InsertDatasetAsync(userIds, datasetId ,cancellationToken);
@@ -57,12 +67,12 @@ namespace SocialAnalyser.Services
 
       if (userFriends.Length == 0)
         return null;
-        // throw exception or code
+      // throw exception or code
 
       return new DatasetStatistics
       {
         AvgNumberOfFreinds = (int)Math.Round(userFriends.Average(a => a.FriendsCount)),
-        NumberOfUsers = userFriends.Length
+        NumberOfUsers = await fUserRepository.FindCountByDatasetNameAsync(name, cancellationToken)
       };
 
     }
