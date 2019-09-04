@@ -14,17 +14,19 @@ namespace SocialAnalyser.Services
   public class DatasetService: IDatasetService
   {
     private readonly IDatasetRepository fDatasetRepository;
+    private readonly IUserDatasetRepository fUserDatasetRepository;
     private readonly IUserFriendRepository fUserFriendRepository;
     private readonly IUserRepository fUserRepository;
-
 
     public DatasetService(
       IDatasetRepository datasetRepository,
       IUserFriendRepository userFriendRepository,
-      IUserRepository userRepository
+      IUserRepository userRepository,
+      IUserDatasetRepository userDatasetRepository
       )
     {
       fDatasetRepository = datasetRepository;
+      fUserDatasetRepository = userDatasetRepository;
       fUserFriendRepository = userFriendRepository;
       fUserRepository = userRepository;
     }
@@ -35,16 +37,15 @@ namespace SocialAnalyser.Services
       UserFriendDto[] relationships = ParseDataset(await FormFileExtensionUtil.ReadAsListAsync(file))
         .ToArray();
 
-      HashSet<string> userIds = new HashSet<string>();
-      foreach(UserFriendDto userFriendDto in relationships)
-      {
-        userIds.Add(userFriendDto.UserId);
-        userIds.Add(userFriendDto.FriendId);
-      }
+      HashSet<string> userIds = getAllUsers(relationships);
 
       int datasetId = await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
+
       await fUserRepository.InsertUsersAsync(userIds, cancellationToken);
-      await fUserFriendRepository.SaveAllAsync(cancellationToken);
+      await fUserRepository.SaveAllAsync(cancellationToken);
+
+      await fUserDatasetRepository.InsertDatasetAsync(userIds, datasetId ,cancellationToken);
+      await fUserDatasetRepository.SaveAllAsync(cancellationToken);
 
       await fUserFriendRepository.InsertAsync(relationships, datasetId, cancellationToken);
       await fUserFriendRepository.SaveAllAsync(cancellationToken);
@@ -72,6 +73,18 @@ namespace SocialAnalyser.Services
         .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
         .Select(rel => rel.Split(null))
         .Select(tuple => new UserFriendDto { UserId = tuple[0], FriendId = tuple[1] });
+    }
+
+    private HashSet<string> getAllUsers(UserFriendDto[] relationships)
+    {
+      HashSet<string> userIds = new HashSet<string>();
+      foreach (UserFriendDto userFriendDto in relationships)
+      {
+        userIds.Add(userFriendDto.UserId);
+        userIds.Add(userFriendDto.FriendId);
+      }
+
+      return userIds;
     }
   }
 }

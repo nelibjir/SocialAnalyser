@@ -10,6 +10,7 @@ namespace SocialAnalyser.IoC
       services.AddTransient<IDatasetRepository, DatasetRepository>();
       services.AddTransient<IUserFriendRepository, UserFriendRepository>();
       services.AddTransient<IUserRepository, UserRepository>();
+      services.AddTransient<IUserDatasetRepository, UserDatasetRepository>();
     }
   }
 }

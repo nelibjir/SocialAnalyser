@@ -9,7 +9,7 @@ using SocialAnalyser.Entities;
 namespace SocialAnalyser.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20190902170659_InitialCreate")]
+    [Migration("20190904173129_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,6 +60,31 @@ namespace SocialAnalyser.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("SocialAnalyser.Entities.UserDataset", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("DatasetId")
+                        .HasColumnName("dataset_id");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DatasetId")
+                        .HasName("IX_userdataset-dataset_id");
+
+                    b.HasIndex("UserId")
+                        .HasName("IX_userdataset-user_id");
+
+                    b.ToTable("users_datasets");
+                });
+
             modelBuilder.Entity("SocialAnalyser.Entities.UserFriend", b =>
                 {
                     b.Property<int>("Id")
@@ -90,6 +115,22 @@ namespace SocialAnalyser.Migrations
                         .HasName("IX_userfriend-user_id");
 
                     b.ToTable("users_friends");
+                });
+
+            modelBuilder.Entity("SocialAnalyser.Entities.UserDataset", b =>
+                {
+                    b.HasOne("SocialAnalyser.Entities.Dataset", "Dataset")
+                        .WithMany("UserDatasets")
+                        .HasForeignKey("DatasetId")
+                        .HasConstraintName("FK_userdatasets-dataset_id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SocialAnalyser.Entities.User", "User")
+                        .WithMany("UserDatasets")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK_userdatasets-user_id")
+                        .HasPrincipalKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("SocialAnalyser.Entities.UserFriend", b =>

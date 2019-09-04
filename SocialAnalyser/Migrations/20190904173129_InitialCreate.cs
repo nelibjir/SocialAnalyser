@@ -35,6 +35,32 @@ namespace SocialAnalyser.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "users_datasets",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    user_id = table.Column<string>(nullable: false),
+                    dataset_id = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_users_datasets", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_userdatasets-dataset_id",
+                        column: x => x.dataset_id,
+                        principalTable: "datasets",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_userdatasets-user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "user_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "users_friends",
                 columns: table => new
                 {
@@ -80,6 +106,16 @@ namespace SocialAnalyser.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_userdataset-dataset_id",
+                table: "users_datasets",
+                column: "dataset_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_userdataset-user_id",
+                table: "users_datasets",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_userfriend-dataset_id",
                 table: "users_friends",
                 column: "dataset_id");
@@ -97,6 +133,9 @@ namespace SocialAnalyser.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "users_datasets");
+
             migrationBuilder.DropTable(
                 name: "users_friends");
 
