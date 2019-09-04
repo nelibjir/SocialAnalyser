@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using SocialAnalyser.Comparators;
+using SocialAnalyser.Api.Models;
 using SocialAnalyser.Dtos;
 using SocialAnalyser.Repositories;
 using SocialAnalyser.Utils;
@@ -48,6 +48,22 @@ namespace SocialAnalyser.Services
 
       await fUserFriendRepository.InsertAsync(relationships, datasetId, cancellationToken);
       await fUserFriendRepository.SaveAllAsync(cancellationToken);
+    }
+
+    public async Task<DatasetStatistics> GetDatasetStatisticsAsync(string name, CancellationToken cancellationToken)
+    {
+      UserFriendsCountDto[] userFriends = await fUserFriendRepository.FindByDatasetNameAsync(name, cancellationToken);
+
+      if (userFriends.Length == 0)
+        return null;
+        // throw exception or code
+
+      return new DatasetStatistics
+      {
+        AvgNumberOfFreinds = (int)Math.Round(userFriends.Average(a => a.FriendsCount)),
+        NumberOfUsers = userFriends.Length
+      };
+
     }
 
     private IEnumerable<UserFriendDto> ParseDataset(string dataset)

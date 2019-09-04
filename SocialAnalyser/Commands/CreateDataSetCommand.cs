@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace SocialAnalyser.Commands
 {
-  public class CreateDataSetCommand: IRequest
+  public class CreateDatasetCommand: IRequest
   {
     public IFormFile File { get; set; }
 

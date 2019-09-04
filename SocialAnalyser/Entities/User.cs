@@ -22,5 +22,8 @@ namespace SocialAnalyser.Entities
 
     [InverseProperty("User")]
     public virtual ICollection<UserFriend> Users { get; set; }
+
+    [InverseProperty("User")]
+    public virtual ICollection<UserDataset> UserDatasets { get; set; }
   }
 }

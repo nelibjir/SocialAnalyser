@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SocialAnalyser.Dtos;
 using SocialAnalyser.Entities;
 
@@ -16,6 +18,18 @@ namespace SocialAnalyser.Repositories
       {
         await DbSet.AddAsync(new UserFriend { UserId = userFriend.UserId, FriendUserId = userFriend.FriendId, DatasetId = datasetId });
       }
+    }
+
+    public async Task<UserFriendsCountDto[]> FindByDatasetNameAsync(string datasetName, CancellationToken cancellationToken)
+    {
+      return await DbSet
+        .Where(userFriend => userFriend.Dataset.Name == datasetName)
+        .GroupBy(
+          user => user.UserId,
+          friends => friends.FriendUserId,
+          (user, friends) => new UserFriendsCountDto { UserId = user, FriendsCount = friends.ToArray().Length }
+        )
+        .ToArrayAsync(cancellationToken);
     }
   }
 }

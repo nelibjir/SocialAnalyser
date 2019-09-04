@@ -31,8 +31,9 @@ namespace SocialAnalyser.Entities
     }
 
     public virtual DbSet<User> User { get; set; }
-
     public virtual DbSet<UserFriend> UserFriend { get; set; }
+    public virtual DbSet<Dataset> Dataset { get; set; }
+    public virtual DbSet<UserDataset> UserDataset { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -80,6 +81,27 @@ namespace SocialAnalyser.Entities
         entity.HasIndex(e => e.Name)
                   .HasName("IX_dataset-name")
                   .IsUnique();
+      });
+
+      modelBuilder.Entity<UserDataset>(entity =>
+      {
+        entity.HasIndex(e => e.UserId)
+                  .HasName("IX_userdataset-user_id");
+        entity.HasIndex(e => e.DatasetId)
+                  .HasName("IX_userdataset-dataset_id");
+
+        entity.HasOne(d => d.User)
+                  .WithMany(p => p.UserDatasets)
+                  .HasForeignKey(d => d.UserId)
+                  .HasPrincipalKey(p => p.UserId)
+                  .OnDelete(DeleteBehavior.Restrict)
+                  .HasConstraintName("FK_userdatasets-user_id");
+
+        entity.HasOne(d => d.Dataset)
+                  .WithMany(p => p.UserDatasets)
+                  .HasForeignKey(d => d.DatasetId)
+                  .OnDelete(DeleteBehavior.Restrict)
+                  .HasConstraintName("FK_userdatasets-dataset_id");
       });
     }
   }

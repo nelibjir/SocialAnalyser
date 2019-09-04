@@ -8,5 +8,6 @@ namespace SocialAnalyser.Repositories
   public interface IUserFriendRepository: IGenericRepository<UserFriend>
   {
     Task InsertAsync(UserFriendDto[] userFriendDtos, int datasetId, CancellationToken cancellationToken);
+    Task<UserFriendsCountDto[]> FindByDatasetNameAsync(string datasetName, CancellationToken cancellationToken);
   }
 }
