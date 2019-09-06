@@ -32,7 +32,7 @@ namespace SocialAnalyser.Middlewares
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
       ApiError apiError = fApiErrorFactory.Create(exception);
-      context.Response.StatusCode = (int)apiError.StatusCode;
+      context.Response.StatusCode = apiError.StatusCode;
       context.Response.ContentType = "application/json";
 
       return context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = apiError.Message }));

@@ -1,9 +1,7 @@
-﻿using System.Data.SqlClient;
-using System.Reflection;
+﻿using System.Reflection;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +20,7 @@ namespace SocialAnalyser
     public IConfiguration Configuration { get; }
 
     private static readonly log4net.ILog fLog = log4net.LogManager.GetLogger(typeof(Startup));
+    private const string _ConfigurationSectionName = "DbConnectionConfiguration:ConnectionString";
 
     public Startup(ILogger<Startup> logger, IConfiguration configuration)
     {
@@ -35,23 +34,16 @@ namespace SocialAnalyser
         .AddMvc()
         .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-      IConfigurationSection tmp = Configuration
-        .GetSection("DbConnectionConfiguration:ConnectionString");
+      /**IConfigurationSection tmp = Configuration
+        .GetSection(_ConfigurationSectionName); **/
 
       services.AddCors();
-      //add to function preparing env, make factory here
+
       MyEnvironment.DefaultDbConnectionString = Configuration
-       .GetSection("DbConnectionConfiguration:ConnectionString")
+       .GetSection(_ConfigurationSectionName)
        .Value;
 
       services.AddDbContext<DataContext>(SetupDbContext);
-      //services.AddSwaggerGen(SwaggerConfig.SetupSwaggerGen);
-
-      // Add functionality to inject IOptions<T>
-      //services.AddOptions();
-
-      // Add our Config object so it can be injected for controller
-      //services.Configure<DbConnectionConfiguration>(Configuration.GetSection("DbConnectionConfiguration"));
 
       services.AddFactories();
       services.AddHandlers();
@@ -63,15 +55,11 @@ namespace SocialAnalyser
     public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
     {
       app.UseCors(CorsConfig.SetupCors);
+      app.UseMiddleware<ExceptionMiddleware>();
+      app.UseMiddleware<DbTransactionMiddleware>();
 
-      if (env.IsDevelopment())
-      {
-        app.UseDeveloperExceptionPage();
-      }
-      else
-      {
-        app.UseHsts();
-      }
+      app.UseHsts();
+      app.UseHttpsRedirection();
 
       using (IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
       {
@@ -80,24 +68,12 @@ namespace SocialAnalyser
       }
 
       loggerFactory.AddLog4Net();
-      app.UseHttpsRedirection();
       app.UseMvc();
-
-      app.UseMiddleware<ExceptionMiddleware>();
-      app.UseMiddleware<DbTransactionMiddleware>();
-
-      //app.UseSwagger(SwaggerConfig.SetupSwagger);
-      //app.UseSwaggerUI(SwaggerConfig.SetupSwaggerUI);
-      /**app.Run(async (context) =>
-      {
-        await context.Response.WriteAsync("Hello World!");
-      });         */
     }
 
     private void SetupDbContext(DbContextOptionsBuilder optionsBuilder)
-    { 
-      //OBSOLOTE
-      LoggerFactory f = new LoggerFactory(new[] { new ConsoleLoggerProvider((m, l) => l == LogLevel.Information, true) });
+    {
+      LoggerFactory f = new LoggerFactory(new[] { new ConsoleLoggerProvider((m, l) => true, true) });
       // TODO zmazat po pridani ILoggerFactory do ServiceCollection
       optionsBuilder.UseLoggerFactory(f);
       optionsBuilder.UseSqlServer(MyEnvironment.DbConnectionString);

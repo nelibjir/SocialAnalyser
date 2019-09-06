@@ -4,9 +4,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using SocialAnalyser.Api.Models;
 using SocialAnalyser.Dtos;
-using SocialAnalyser.Entities;
+using SocialAnalyser.Exceptions;
 using SocialAnalyser.Repositories;
 using SocialAnalyser.Utils;
 
@@ -18,6 +19,8 @@ namespace SocialAnalyser.Services
     private readonly IUserDatasetRepository fUserDatasetRepository;
     private readonly IUserFriendRepository fUserFriendRepository;
     private readonly IUserRepository fUserRepository;
+
+    private const int _MaxUserIdLength = 450;
 
     public DatasetService(
       IDatasetRepository datasetRepository,
@@ -39,10 +42,18 @@ namespace SocialAnalyser.Services
         .ToArray();
 
       HashSet<string> userIds = getAllUsers(relationships);
-      // should whtorw exception when there is already same name
-      int datasetId = await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
 
-      //users already in user table
+      int datasetId = 0;
+      try
+      {
+        datasetId = await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
+      }
+      catch (DbUpdateException)
+      {
+        //add rather exception also
+        throw new ConflictException(name);
+      }
+
       string[] userIdsInDb = (await fUserRepository.FindManyAsync(users => userIds.Contains(users.UserId), cancellationToken))
         .Select(u => u.UserId)
         .ToArray();
@@ -54,20 +65,19 @@ namespace SocialAnalyser.Services
       await fUserRepository.InsertUsersAsync(newUserIds, cancellationToken);
       await fUserRepository.SaveAllAsync(cancellationToken);
 
-      await fUserDatasetRepository.InsertDatasetAsync(userIds, datasetId ,cancellationToken);
+      await fUserDatasetRepository.InsertDatasetAsync(userIds, datasetId, cancellationToken);
       await fUserDatasetRepository.SaveAllAsync(cancellationToken);
 
       await fUserFriendRepository.InsertAsync(relationships, datasetId, cancellationToken);
       await fUserFriendRepository.SaveAllAsync(cancellationToken);
-    }
+      }
 
     public async Task<DatasetStatistics> GetDatasetStatisticsAsync(string name, CancellationToken cancellationToken)
     {
       UserFriendsCountDto[] userFriends = await fUserFriendRepository.FindByDatasetNameAsync(name, cancellationToken);
 
       if (userFriends.Length == 0)
-        return null;
-      // throw exception or code
+        throw new NotFoundException(name);
 
       return new DatasetStatistics
       {
@@ -82,7 +92,18 @@ namespace SocialAnalyser.Services
       return dataset
         .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
         .Select(rel => rel.Split(null))
-        .Select(tuple => new UserFriendDto { UserId = tuple[0], FriendId = tuple[1] });
+        .Select(tuple => {
+
+          if (tuple.Length != 2)
+            throw new BadRequestException("Content of the file is not in the correct format");
+          if(tuple[0].Length > _MaxUserIdLength)
+            throw new BadRequestException($"id : {tuple[0]} is too long");
+          if (tuple[1].Length > _MaxUserIdLength)
+            throw new BadRequestException($"id : {tuple[1]} is too long");
+
+          return new UserFriendDto { UserId = tuple[0], FriendId = tuple[1] };
+        }
+        );
     }
 
     private HashSet<string> getAllUsers(UserFriendDto[] relationships)

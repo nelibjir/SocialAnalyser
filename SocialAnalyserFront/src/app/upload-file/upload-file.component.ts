@@ -8,8 +8,10 @@ import { FileUploadService } from '../file-upload.service';
   providers: [FileUploadService]
 })
 export class UploadFileComponent implements OnInit {
+
 imageUrl : string = "assets/img/Upload-PNG-Image-File.png";
 fileToUpload : File = null;
+datasetName : string = "aaa";
 
   constructor(private fileUploadService : FileUploadService) { }
 
@@ -20,11 +22,16 @@ fileToUpload : File = null;
     this.fileToUpload = file.item(0);
   }
 
+  get datasetNameMethod() {
+    return this.datasetName;
+  }
+
   // I can get rid of fileToUpload and in component also get rid of the function handleFileInput 
   OnSubmit(Caption, File){
     this.fileUploadService.postFile(Caption.value,this.fileToUpload).subscribe(
       data =>{
         console.log('done');
+        this.datasetName = <string>(data)
         Caption.value = null;
         File.value = null;
       }

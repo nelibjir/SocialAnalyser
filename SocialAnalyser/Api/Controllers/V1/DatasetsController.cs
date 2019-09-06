@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using SocialAnalyser.Api.Models;
 using SocialAnalyser.Commands;
+using SocialAnalyser.Exceptions;
 
 namespace SocialAnalyser.Api.Controllers.V1
 {
@@ -21,7 +22,7 @@ namespace SocialAnalyser.Api.Controllers.V1
     }
 
     /// <summary>
-    /// 
+    /// Get statistics for the named dataset
     /// </summary>
     /// <param name="name">Name of dataset for the</param>
     /// <returns>Average number of friends and number of users in that dataset</returns>
@@ -29,7 +30,7 @@ namespace SocialAnalyser.Api.Controllers.V1
     public async Task<DatasetStatistics> GetDataset(string name, CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(name))
-        return null; // throw exception and in middleware then given status code
+        throw new BadRequestException($"Please specify the name of the dataset");
 
       return await fMediator.Send(new GetDatasetStatisticsCommand { Name = name }, cancellationToken);
     }
@@ -43,22 +44,17 @@ namespace SocialAnalyser.Api.Controllers.V1
     [HttpPost]
     public async Task<ActionResult> PostNewDataset(CancellationToken cancellationToken)
     {
-      Request.Form.TryGetValue(NewDataset.NameKey, out StringValues datasetName);
+      if(Request.Form == null || Request.Form.Files == null || Request.Form.Files.Count == 0)
+        throw new BadRequestException($"File has not been sent");
+      if(Request.Form.Files.Count > 1)
+        throw new BadRequestException($"Only one file can be send at once");
+
+      bool hasName = Request.Form.TryGetValue(NewDataset.NameKey, out StringValues datasetName);
+      if (!hasName)
+        throw new BadRequestException($"No name of the file in the request");
 
       await fMediator.Send(new CreateDatasetCommand { File = Request.Form.Files[0], Name = datasetName }, cancellationToken);
       return CreatedAtRoute(nameof(GetDataset), new { name = datasetName }, datasetName);
-    }
-
-    // PUT api/<controller>/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody]string value)
-    {
-    }
-
-    // DELETE api/<controller>/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
-    {
     }
   }
 }

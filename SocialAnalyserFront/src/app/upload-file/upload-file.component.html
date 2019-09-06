@@ -15,4 +15,7 @@
             <button type="submit" class="btn-large btn-submit" [disabled]="File.value=='' || !fileForm.valid">Submit</button>
         </form>
     </div>
+    <div class="row">
+            <a class ='btn'><i (click)="getStatistics(datasetNameMethod)">{{datasetNameMethod}}</i></a>
+    </div>
 </div>

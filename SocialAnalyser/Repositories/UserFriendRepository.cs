@@ -24,11 +24,9 @@ namespace SocialAnalyser.Repositories
     {
       return await DbSet
         .Where(userFriend => userFriend.Dataset.Name == datasetName)
-        .GroupBy(
-          user => user.UserId,
-          friends => friends.FriendUserId,
-          (user, friends) => new UserFriendsCountDto { UserId = user, FriendsCount = friends.ToArray().Length }
-        )
+        .GroupBy(user => new { user.UserId })
+        .Select( g=> 
+          new UserFriendsCountDto {UserId = g.Key.UserId, FriendsCount = g.Count()})
         .ToArrayAsync(cancellationToken);
     }
   }
