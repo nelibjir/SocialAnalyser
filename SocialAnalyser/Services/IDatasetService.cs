@@ -9,5 +9,6 @@ namespace SocialAnalyser.Services
   {
     Task CreateDatasetAsync(IFormFile file, string name, CancellationToken cancellationToken);
     Task<DatasetStatistics> GetDatasetStatisticsAsync(string name, CancellationToken cancellationToken);
+    Task<DatasetNames> GetDatasetNamesAsync(CancellationToken cancellationToken);
   }
 }

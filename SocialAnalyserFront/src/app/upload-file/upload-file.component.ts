@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { FileUploadService } from '../file-upload.service';
+import { Router } from '@angular/router';
+import { MessageService } from '../message-service.service';
 
 @Component({
   selector: 'app-upload-file',
@@ -9,33 +11,48 @@ import { FileUploadService } from '../file-upload.service';
 })
 export class UploadFileComponent implements OnInit {
 
-imageUrl : string = "assets/img/Upload-PNG-Image-File.png";
-fileToUpload : File = null;
-datasetName : string = "aaa";
+  @Output() myEvent = new EventEmitter<string>();
 
-  constructor(private fileUploadService : FileUploadService) { }
+  imageUrl: string = "assets/img/Upload-PNG-Image-File.png";
+  uplodedDatasetName: string = "";
+  statisticsPage: string = "/statistics";
+  allDatasetNames: Array<string> = new Array();
+  fileToUpload : File = null;
 
-  ngOnInit() {
+  constructor(private fileUploadService: FileUploadService, 
+    private _router: Router, 
+    private _messageService: MessageService) {
+
+    this.fileUploadService.getDatasetNames().subscribe(
+      data => {
+        this.allDatasetNames = data.names
+      },
+      error => alert(error)
+    )
+  }
+
+  eventStaisticsRequested(datasetName: string){
+    this._messageService.filter(datasetName);
   }
 
   handleFileInput(file: FileList) {
     this.fileToUpload = file.item(0);
   }
 
-  get datasetNameMethod() {
-    return this.datasetName;
-  }
-
-  // I can get rid of fileToUpload and in component also get rid of the function handleFileInput 
-  OnSubmit(Caption, File){
-    this.fileUploadService.postFile(Caption.value,this.fileToUpload).subscribe(
-      data =>{
-        console.log('done');
-        this.datasetName = <string>(data)
+  OnSubmit(Caption, File) {
+    this.fileUploadService.postFile(Caption.value, this.fileToUpload).subscribe(
+      data => {
+        this.allDatasetNames.push(<string>(data))
         Caption.value = null;
         File.value = null;
+      },
+      error => {
+        console.log("error with code "+ error)
       }
     );
+  }
+
+  ngOnInit() {
   }
 
 }

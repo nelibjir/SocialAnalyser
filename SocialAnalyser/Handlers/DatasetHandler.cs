@@ -7,9 +7,10 @@ using SocialAnalyser.Services;
 
 namespace SocialAnalyser.Handlers
 {
-  public class DatasetHandler: 
+  public class DatasetHandler:
       IRequestHandler<CreateDatasetCommand>,
-      IRequestHandler<GetDatasetStatisticsCommand, DatasetStatistics>
+      IRequestHandler<GetDatasetStatisticsCommand, DatasetStatistics>,
+      IRequestHandler<GetDatasetNamesCommand, DatasetNames>
   {
     private readonly IDatasetService fDatasetServicecs;
 
@@ -29,6 +30,11 @@ namespace SocialAnalyser.Handlers
     public async Task<DatasetStatistics> Handle(GetDatasetStatisticsCommand request, CancellationToken cancellationToken)
     {
       return await fDatasetServicecs.GetDatasetStatisticsAsync(request.Name, cancellationToken);
+    }
+
+    public async Task<DatasetNames> Handle(GetDatasetNamesCommand request, CancellationToken cancellationToken)
+    {
+      return await fDatasetServicecs.GetDatasetNamesAsync(cancellationToken);
     }
   }
 }

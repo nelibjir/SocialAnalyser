@@ -35,5 +35,11 @@ namespace SocialAnalyser.Repositories
         .Where(condition)
         .ToArrayAsync(cancellationToken);
     }
+
+    public async Task<T[]> FindAllAsync(CancellationToken cancellationToken)
+    {
+      return await DbSet
+        .ToArrayAsync();
+    }
   }
 }

@@ -10,5 +10,6 @@ namespace SocialAnalyser.Repositories
     void SaveAll();
     Task SaveAllAsync(CancellationToken cancellationToken);
     Task<T[]> FindManyAsync(Expression<Func<T, bool>> condition, CancellationToken cancellationToken);
+    Task<T[]> FindAllAsync(CancellationToken cancellationToken);
   }
 }

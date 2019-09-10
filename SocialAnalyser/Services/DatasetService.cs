@@ -50,7 +50,6 @@ namespace SocialAnalyser.Services
       }
       catch (DbUpdateException)
       {
-        //add rather exception also
         throw new ConflictException(name);
       }
 
@@ -116,6 +115,15 @@ namespace SocialAnalyser.Services
       }
 
       return userIds;
+    }
+
+    public async Task<DatasetNames> GetDatasetNamesAsync(CancellationToken cancellationToken)
+    {
+      return new DatasetNames {
+        Names = (await fDatasetRepository.FindAllAsync(cancellationToken))
+        .Select(ds => ds.Name)
+        .ToArray()
+      };
     }
   }
 }

@@ -1,21 +1,23 @@
 <div class="container">
     <div class="row">
         <div class="col s8 offset-2">
-           <h4 class="center white-text">Social Analiser</h4> 
+            <h4 class="center white-text">Social Analiser</h4>
         </div>
-        <form #fileForm = ngForm (ngSubmit)="OnSubmit(Caption,File)">
+        <form #fileForm=ngForm (ngSubmit)="OnSubmit(Caption,File)">
             <div class="row">
                 <div class="input-field col s12">
-                <input type="text" #Caption ngModel name="Caption" id="Caption" required>
-                <label for="Caption">Dataset name</label>
+                    <input type="text" #Caption ngModel name="Caption" id="Caption" required>
+                    <label for="Caption">Dataset name</label>
                 </div>
             </div>
-            <img [src]="imageUrl"  style="width:250px;height:200px">
+            <img [src]="imageUrl" style="width:250px;height:200px">
             <input type="file" #File accept=".txt" (change)="handleFileInput($event.target.files)">
-            <button type="submit" class="btn-large btn-submit" [disabled]="File.value=='' || !fileForm.valid">Submit</button>
+            <button type="submit" class="btn-large btn-submit"
+                [disabled]="File.value=='' || !fileForm.valid">Submit</button>
         </form>
     </div>
-    <div class="row">
-            <a class ='btn'><i (click)="getStatistics(datasetNameMethod)">{{datasetNameMethod}}</i></a>
+    <div style="margin-top:5px" *ngFor="let x of allDatasetNames" (click)="eventStaisticsRequested(x)">
+        <a routerLink="statistics"><button class="btn btn-success"> {{x}}</button></a>
     </div>
+    <router-outlet></router-outlet>
 </div>

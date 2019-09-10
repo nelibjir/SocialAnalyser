@@ -7,11 +7,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FileUploadService } from './file-upload.service';
 import { UploadFileComponent } from './upload-file/upload-file.component';
+import { StatisticsComponent } from './statistics/statistics.component';
+import { StatisticsService } from './statistics.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    UploadFileComponent
+    UploadFileComponent,
+    StatisticsComponent
   ],
   imports: [
     BrowserModule,
@@ -20,7 +23,8 @@ import { UploadFileComponent } from './upload-file/upload-file.component';
     HttpClientModule
   ],
   providers: [
-    FileUploadService
+    FileUploadService,
+    StatisticsService
   ],
   bootstrap: [AppComponent]
 })
