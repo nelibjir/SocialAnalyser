@@ -40,36 +40,18 @@ namespace SocialAnalyser.Services
 
       UserFriendDto[] relationships = ParseDataset(await FormFileExtensionUtil.ReadAsListAsync(file))
         .ToArray();
-
       HashSet<string> userIds = getAllUsers(relationships);
 
-      int datasetId = 0;
-      try
-      {
-        datasetId = await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
-      }
-      catch (DbUpdateException)
-      {
-        throw new ConflictException(name);
-      }
+      int datasetId = InsertDataSetNameAsync(name, cancellationToken).Result;
 
-      string[] userIdsInDb = (await fUserRepository.FindManyAsync(users => userIds.Contains(users.UserId), cancellationToken))
-        .Select(u => u.UserId)
-        .ToArray();
-
-      HashSet<string> newUserIds = userIds
-        .Where(u => !userIdsInDb.Contains(u))
-        .ToHashSet();
-
-      await fUserRepository.InsertUsersAsync(newUserIds, cancellationToken);
-      await fUserRepository.SaveAllAsync(cancellationToken);
+      await InsertNewUsersAsync(userIds, cancellationToken);
 
       await fUserDatasetRepository.InsertDatasetAsync(userIds, datasetId, cancellationToken);
       await fUserDatasetRepository.SaveAllAsync(cancellationToken);
 
       await fUserFriendRepository.InsertAsync(relationships, datasetId, cancellationToken);
       await fUserFriendRepository.SaveAllAsync(cancellationToken);
-      }
+    }
 
     public async Task<DatasetStatistics> GetDatasetStatisticsAsync(string name, CancellationToken cancellationToken)
     {
@@ -86,16 +68,43 @@ namespace SocialAnalyser.Services
 
     }
 
+    public async Task<int> InsertDataSetNameAsync(string name, CancellationToken cancellationToken)
+    {
+      try
+      {
+        return await fDatasetRepository.InsertDatasetAsync(name, cancellationToken);
+      }
+      catch (DbUpdateException)
+      {
+        throw new ConflictException(name);
+      }
+    }
+
+    public async Task InsertNewUsersAsync(ISet<string> userIds, CancellationToken cancellationToken)
+    {
+      string[] userIdsInDb = (await fUserRepository.FindManyAsync(users => userIds.Contains(users.UserId), cancellationToken))
+       .Select(u => u.UserId)
+       .ToArray();
+
+      HashSet<string> newUserIds = userIds
+        .Where(u => !userIdsInDb.Contains(u))
+        .ToHashSet();
+
+      await fUserRepository.InsertUsersAsync(newUserIds, cancellationToken);
+      await fUserRepository.SaveAllAsync(cancellationToken);
+    }
+
     private IEnumerable<UserFriendDto> ParseDataset(string dataset)
     {
       return dataset
         .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
         .Select(rel => rel.Split(null))
-        .Select(tuple => {
+        .Select(tuple =>
+        {
 
           if (tuple.Length != 2)
             throw new BadRequestException("Content of the file is not in the correct format");
-          if(tuple[0].Length > _MaxUserIdLength)
+          if (tuple[0].Length > _MaxUserIdLength)
             throw new BadRequestException($"id : {tuple[0]} is too long");
           if (tuple[1].Length > _MaxUserIdLength)
             throw new BadRequestException($"id : {tuple[1]} is too long");
@@ -119,7 +128,8 @@ namespace SocialAnalyser.Services
 
     public async Task<DatasetNames> GetDatasetNamesAsync(CancellationToken cancellationToken)
     {
-      return new DatasetNames {
+      return new DatasetNames
+      {
         Names = (await fDatasetRepository.FindAllAsync(cancellationToken))
         .Select(ds => ds.Name)
         .ToArray()
