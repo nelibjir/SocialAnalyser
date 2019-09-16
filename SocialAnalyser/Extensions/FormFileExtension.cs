@@ -3,9 +3,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace SocialAnalyser.Utils
+namespace SocialAnalyser.Extensions
 {
-  public static class FormFileExtensionUtil
+  public static class FormFileExtension
   {
     /// <summary>
     /// Read the file and return string with new line marks 

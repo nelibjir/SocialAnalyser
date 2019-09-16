@@ -24,9 +24,9 @@ namespace SocialAnalyser.Repositories
       DbContext.SaveChanges();
     }
 
-    public async Task SaveAllAsync(CancellationToken cancellationToken)
+    public async Task<int> SaveAllAsync(CancellationToken cancellationToken)
     {
-      await DbContext.SaveChangesAsync(cancellationToken);
+      return await DbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<T[]> FindManyAsync(Expression<Func<T, bool>> condition, CancellationToken cancellationToken)
