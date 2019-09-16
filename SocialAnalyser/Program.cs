@@ -16,7 +16,7 @@ namespace SocialAnalyser
     {
       CreateWebHostBuilder(args)
         .Build()
-        .Run();  //RunAsync
+        .Run();
     }
 
     public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

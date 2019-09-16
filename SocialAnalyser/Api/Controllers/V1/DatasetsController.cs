@@ -13,9 +13,7 @@ namespace SocialAnalyser.Api.Controllers.V1
   [Route("api/v1/datasets")]
   public class DatasetsController: Controller
   {
-
     private readonly IMediator fMediator;
-    private static readonly log4net.ILog fLog = log4net.LogManager.GetLogger(typeof(DatasetsController));
 
     public DatasetsController(IMediator mediator)
     {

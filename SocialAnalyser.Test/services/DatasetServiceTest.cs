@@ -39,7 +39,7 @@ namespace SocialAnalyser.Test.services
       Assert.AreEqual(3, size);
 
       dataset = "1 2" + System.Environment.NewLine + "34" + System.Environment.NewLine + "5 6" + System.Environment.NewLine;
-      TestException(() => stringUtilAdapter.GetUserFriendDtos(dataset).ToArray());
+      TestBadRequestException(() => stringUtilAdapter.GetUserFriendDtos(dataset).ToArray());
 
       dataset = null;
       IEnumerable<UserFriendDto> userFreind = stringUtilAdapter.GetUserFriendDtos(dataset);

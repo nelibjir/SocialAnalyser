@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SocialAnalyser.Api.Models
+﻿namespace SocialAnalyser.Api.Models
 {
   public static class NewDataset
   {

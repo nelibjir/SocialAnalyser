@@ -34,9 +34,6 @@ namespace SocialAnalyser
         .AddMvc()
         .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-      /**IConfigurationSection tmp = Configuration
-        .GetSection(_ConfigurationSectionName); **/
-
       services.AddCors();
 
       MyEnvironment.DefaultDbConnectionString = Configuration
@@ -45,6 +42,7 @@ namespace SocialAnalyser
 
       services.AddDbContext<DataContext>(SetupDbContext);
 
+      services.AddAdapters();
       services.AddFactories();
       services.AddHandlers();
       services.AddRepositories();
@@ -74,7 +72,6 @@ namespace SocialAnalyser
     private void SetupDbContext(DbContextOptionsBuilder optionsBuilder)
     {
       LoggerFactory f = new LoggerFactory(new[] { new ConsoleLoggerProvider((m, l) => true, true) });
-      // TODO zmazat po pridani ILoggerFactory do ServiceCollection
       optionsBuilder.UseLoggerFactory(f);
       optionsBuilder.UseSqlServer(MyEnvironment.DbConnectionString);
     }

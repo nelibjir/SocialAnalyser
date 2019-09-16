@@ -8,7 +8,7 @@ namespace SocialAnalyser.Test.services
 {
   public class GenericTest<T> where T : class
   {
-    public void TestException(Func<T> func)
+    public void TestBadRequestException(Func<T> func)
     {
       try
       {

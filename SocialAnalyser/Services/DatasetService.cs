@@ -11,7 +11,6 @@ using SocialAnalyser.Dtos;
 using SocialAnalyser.Exceptions;
 using SocialAnalyser.Extensions;
 using SocialAnalyser.Repositories;
-using SocialAnalyser.Utils;
 
 namespace SocialAnalyser.Services
 {
