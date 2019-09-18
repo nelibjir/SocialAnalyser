@@ -9,11 +9,11 @@ single user has.
 The user have to upload a .txt file in a format where the first is ID of a user and then ID of its friend separated by space.
 These couple of numbers are separated by newline. Id can be any string and can be repeated.
 
-For instance :
-"0 2
- 1 2
- 1 3
- "
+For instance : <br />
+"0 2 <br />
+ 1 2 <br />
+ 1 3 <br />
+ " <br />
  
 After uploading the file and naming the dataset is possible to submit and so upload the file to databse. After that the user
 can see a new button with given name of the dataset as have been submited. After a clik on this button user will see statistics
